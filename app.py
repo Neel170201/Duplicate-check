@@ -449,12 +449,6 @@ def main():
         st.info("👆 Please upload both Master and Party Excel files to begin processing")
         st.stop()
 
-     # Initialize session_state
-    if "processed_df" not in st.session_state:
-        st.session_state["processed_df"] = None
-    if "statistics" not in st.session_state:
-        st.session_state["statistics"] = None
-
 
     try:
         # Load files
