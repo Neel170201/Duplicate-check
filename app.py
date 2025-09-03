@@ -431,6 +431,14 @@ def main():
         help="Excel file containing available stone inventory"
     )
 
+    numeric_cols = ['From Size', 'To Size', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS', 'Size']
+for col in numeric_cols:
+    if col in master_df.columns:
+        master_df[col] = pd.to_numeric(master_df[col], errors="coerce")
+    if col in pool_df.columns:
+        pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce")
+
+
     # Validation
     if master_file is None or pool_file is None:
         st.info("👆 Please upload both Master and Party Excel files to begin processing")
