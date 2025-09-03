@@ -234,7 +234,14 @@ def process_stones_selection(master_df, pool_df):
 def calculate_statistics(processed_df):
     """Calculate summary statistics from processed dataframe."""
     if processed_df.empty:
-        return None  # Skip if no data
+        return {
+            'total_stones': 0,
+            'selections': 0,
+            'rejections': 0,
+            'selection_rate': 0.0,
+            'avg_fulfillment': 0.0,
+            'unique_requirements': 0
+        }
 
     total_stones = len(processed_df)
     selections = (processed_df['Remark'] == 'SELECTION').sum()
@@ -247,10 +254,14 @@ def calculate_statistics(processed_df):
     }).reset_index()
 
     grouped['Required'] = grouped['Grid'] - grouped['Available']
-    grouped['Required'] = grouped['Required'].replace(0, np.nan)  # Prevent division by zero
+    grouped['Required'] = grouped['Required'].replace(0, np.nan)  
 
-    grouped['Fulfillment_Rate'] = (grouped['Remark'] / grouped['Required'] * 100).clip(upper=100).round(2)
-    grouped['Fulfillment_Rate'].fillna(100.0, inplace=True)  # Assume 100% if nothing required
+    grouped['Fulfillment_Rate'] = (
+        (grouped['Remark'] / grouped['Required'] * 100)
+        .clip(upper=100)
+        .round(2)
+    )
+    grouped['Fulfillment_Rate'].fillna(100.0, inplace=True)
 
     avg_fulfillment = grouped['Fulfillment_Rate'].mean()
 
@@ -258,7 +269,7 @@ def calculate_statistics(processed_df):
         'total_stones': total_stones,
         'selections': selections,
         'rejections': rejections,
-        'selection_rate': (selections / total_stones * 100) if total_stones > 0 else None,
+        'selection_rate': (selections / total_stones * 100) if total_stones > 0 else 0.0,
         'avg_fulfillment': avg_fulfillment,
         'unique_requirements': len(grouped)
     }
