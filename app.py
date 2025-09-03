@@ -431,12 +431,6 @@ def main():
         help="Excel file containing available stone inventory"
     )
 
-    numeric_cols = ['From Size', 'To Size', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS', 'Size']
-    for col in numeric_cols:
-        if col in master_df.columns:
-            master_df[col] = pd.to_numeric(master_df[col], errors="coerce")
-        if col in pool_df.columns:
-            pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce")
 
 
     # Validation
@@ -444,11 +438,27 @@ def main():
         st.info("👆 Please upload both Master and Party Excel files to begin processing")
         st.stop()
 
+     # Initialize session_state
+    if "processed_df" not in st.session_state:
+        st.session_state["processed_df"] = None
+    if "statistics" not in st.session_state:
+        st.session_state["statistics"] = None
+
+
     try:
         # Load files
         with st.spinner("Loading files..."):
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
+
+        # Convert numeric columns safely
+        numeric_cols = ['From Size', 'To Size', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS', 'Size']
+        for col in numeric_cols:
+            if col in master_df.columns:
+                master_df[col] = pd.to_numeric(master_df[col], errors="coerce")
+            if col in pool_df.columns:
+                pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce")
+
 
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
