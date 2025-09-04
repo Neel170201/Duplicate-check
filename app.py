@@ -5,6 +5,11 @@ from datetime import datetime
 import numpy as np
 
 
+if "statistics" not in st.session_state:
+    st.session_state["statistics"] = None
+
+
+
 # Configure page
 st.set_page_config(
     page_title="LGD Trading LLP",
