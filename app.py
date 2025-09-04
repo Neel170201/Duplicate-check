@@ -4,6 +4,22 @@ import io
 from datetime import datetime
 import numpy as np
 
+if "processed_df" not in st.session_state:
+    st.session_state["processed_df"] = None
+if "statistics" not in st.session_state:
+    st.session_state["statistics"] = None
+
+def clean_numeric(df, cols):
+    for col in cols:
+        if col in df.columns:
+            df[col] = (
+                df[col]
+                .astype(str)            # force string
+                .str.replace(r"[^\d\.\-]", "", regex=True)  # remove non-numeric chars
+            )
+            df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0)
+    return df
+
 
 # Configure page
 st.set_page_config(
@@ -441,7 +457,10 @@ def main():
         with st.spinner("Loading files..."):
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
-
+            numeric_cols = ["From Size", "To Size", "Size", "Grid", "Available", "On Memo", "3 MONTH SOLD PCS"]
+            master_df = clean_numeric(master_df, numeric_cols)
+            pool_df = clean_numeric(pool_df, numeric_cols)
+            
 
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
