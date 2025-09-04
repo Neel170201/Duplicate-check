@@ -234,14 +234,7 @@ def process_stones_selection(master_df, pool_df):
 def calculate_statistics(processed_df):
     """Calculate summary statistics from processed dataframe."""
     if processed_df.empty:
-        return {
-            'total_stones': 0,
-            'selections': 0,
-            'rejections': 0,
-            'selection_rate': 0.0,
-            'avg_fulfillment': 0.0,
-            'unique_requirements': 0
-        }
+        return None  # Skip if no data
 
     total_stones = len(processed_df)
     selections = (processed_df['Remark'] == 'SELECTION').sum()
@@ -254,14 +247,10 @@ def calculate_statistics(processed_df):
     }).reset_index()
 
     grouped['Required'] = grouped['Grid'] - grouped['Available']
-    grouped['Required'] = grouped['Required'].replace(0, np.nan)  
+    grouped['Required'] = grouped['Required'].replace(0, np.nan)  # Prevent division by zero
 
-    grouped['Fulfillment_Rate'] = (
-        (grouped['Remark'] / grouped['Required'] * 100)
-        .clip(upper=100)
-        .round(2)
-    )
-    grouped['Fulfillment_Rate'].fillna(100.0, inplace=True)
+    grouped['Fulfillment_Rate'] = (grouped['Remark'] / grouped['Required'] * 100).clip(upper=100).round(2)
+    grouped['Fulfillment_Rate'].fillna(100.0, inplace=True)  # Assume 100% if nothing required
 
     avg_fulfillment = grouped['Fulfillment_Rate'].mean()
 
@@ -269,7 +258,7 @@ def calculate_statistics(processed_df):
         'total_stones': total_stones,
         'selections': selections,
         'rejections': rejections,
-        'selection_rate': (selections / total_stones * 100) if total_stones > 0 else 0.0,
+        'selection_rate': (selections / total_stones * 100) if total_stones > 0 else None,
         'avg_fulfillment': avg_fulfillment,
         'unique_requirements': len(grouped)
     }
@@ -442,28 +431,16 @@ def main():
         help="Excel file containing available stone inventory"
     )
 
-
-
     # Validation
     if master_file is None or pool_file is None:
         st.info("👆 Please upload both Master and Party Excel files to begin processing")
         st.stop()
-
 
     try:
         # Load files
         with st.spinner("Loading files..."):
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
-
-        # Convert numeric columns safely
-        numeric_cols = ['From Size', 'To Size', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS', 'Size']
-        for col in numeric_cols:
-            if col in master_df.columns:
-                master_df[col] = pd.to_numeric(master_df[col], errors="coerce")
-            if col in pool_df.columns:
-                pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce")
-
 
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
