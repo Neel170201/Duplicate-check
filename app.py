@@ -4,11 +4,6 @@ import io
 from datetime import datetime
 import numpy as np
 
-if "processed_df" not in st.session_state:
-    st.session_state["processed_df"] = None
-if "statistics" not in st.session_state:
-    st.session_state["statistics"] = None
-
 
 # Configure page
 st.set_page_config(
@@ -447,14 +442,6 @@ def main():
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
 
-            numeric_cols = ["From Size", "To Size", "Size", "Grid", "Available", "On Memo", "3 MONTH SOLD PCS"]
-
-            for col in numeric_cols:
-                if col in master_df.columns:
-                    master_df[col] = pd.to_numeric(master_df[col], errors="coerce").fillna(0)
-                if col in pool_df.columns:
-                    pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce").fillna(0)
-            
 
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
