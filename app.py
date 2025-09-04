@@ -5,13 +5,6 @@ from datetime import datetime
 import numpy as np
 
 
-# ---- Session State Initialization ----
-if "processed_df" not in st.session_state:
-    st.session_state["processed_df"] = None
-if "statistics" not in st.session_state:
-    st.session_state["statistics"] = None
-
-
 # Configure page
 st.set_page_config(
     page_title="LGD Trading LLP",
@@ -449,12 +442,7 @@ def main():
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
 
-            # Force numeric for size-related columns
-            for col in ["From Size", "To Size", "Size", "Grid", "Available", "On Memo", "3 MONTH SOLD PCS"]:
-                if col in master_df.columns:
-                    master_df[col] = pd.to_numeric(master_df[col], errors="coerce")
-                if col in pool_df.columns:
-                    pool_df[col] = pd.to_numeric(pool_df[col], errors="coerce")
+            
 
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
