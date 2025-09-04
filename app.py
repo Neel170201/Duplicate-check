@@ -5,9 +5,11 @@ from datetime import datetime
 import numpy as np
 
 
+# ---- Session State Initialization ----
+if "processed_df" not in st.session_state:
+    st.session_state["processed_df"] = None
 if "statistics" not in st.session_state:
     st.session_state["statistics"] = None
-
 
 
 # Configure page
