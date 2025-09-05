@@ -413,8 +413,6 @@ def main():
     """, unsafe_allow_html=True)
 
 
-
-    
     st.markdown("### 📁 Upload Files")
 
     # Upload Master File like Pool File
@@ -442,8 +440,6 @@ def main():
             master_df = pd.read_excel(master_file)
             pool_df = pd.read_excel(pool_file)
 
-            
-
         # Validate structure
         master_valid, master_missing = validate_master_file(master_df)
         pool_valid, pool_missing = validate_pool_file(pool_df)
@@ -456,50 +452,61 @@ def main():
             st.error(f"❌ Pool file is missing required columns: {', '.join(pool_missing)}")
             st.stop()
 
+        # ✅ Unique shapes from Party file
+        party_shapes = pool_df['Shape'].dropna().unique()
+
+        # ✅ Filter Master File based on Party Shapes
+        filtered_master_df = master_df[master_df['Shape'].isin(party_shapes)]
+
+        # ✅ Check if any shapes are missing in Master File
+        missing_shapes = set(party_shapes) - set(master_df['Shape'].unique())
+        if missing_shapes:
+            st.warning(f"⚠️ These shapes are in Party File but missing in Master File: {', '.join(missing_shapes)}")
+
         st.success("✅ Files loaded successfully!")
         # Show file info
         col1 = st.columns(1)[0]  # Only one column now
         with col1:
             st.metric("Available Stones", f"{len(pool_df)} stones")
-             
+
         # Process button
         if st.button("🔄 Process Stone Selection", type="primary"):
             with st.spinner("Processing stone selection..."):
                 try:
-                    processed_df = process_stones_selection(master_df, pool_df)
-                    
+                    # ✅ Use filtered master file
+                    processed_df = process_stones_selection(filtered_master_df, pool_df)
+
                     # Store in session state
                     st.session_state.processed_df = processed_df
                     st.session_state.statistics = calculate_statistics(processed_df)
-                    
+
                     st.success("✅ Processing completed!")
                     st.rerun()
-                    
+
                 except Exception as e:
                     st.error(f"❌ Error during processing: {str(e)}")
-        
+
         # Display results if available
         if 'processed_df' in st.session_state:
             st.markdown("---")
             st.header("📊 Results Summary")
-            
+
             # Statistics
             stats = st.session_state.statistics
             col1, col2, col3, col4 = st.columns(4)
-            
+
             with col1:
                 st.metric("Total Stones", stats['total_stones'])
             with col2:
-                st.metric("Selections", stats['selections'], 
-                         f"{stats['selection_rate']:.1f}%")
+                st.metric("Selections", stats['selections'], f"{stats['selection_rate']:.1f}%")
             with col3:
                 st.metric("Rejections", stats['rejections'])
             with col4:
                 st.metric("Avg Fulfillment", f"{stats['avg_fulfillment']:.1f}%")
-            
+
             # Results table
             st.subheader("🔍 Detailed Results")
-            
+
             df = st.session_state.processed_df.copy()
 
             # Create 5 columns in one row
@@ -541,8 +548,6 @@ def main():
             # Final filter
             filtered_df = df_group[df_group['Remark'].isin(remark_filter)] if remark_filter else df_group
 
-
-
             # Color code the dataframe for better visualization
             def highlight_remark(val):
                 if val == 'SELECTION':
@@ -550,42 +555,42 @@ def main():
                 elif val == 'REJECTION':
                     return 'background-color: #f8d7da; color: #721c24'
                 return ''
-            
+
             styled_df = filtered_df.style.applymap(highlight_remark, subset=['Remark'])
-            
+
             st.dataframe(
                 styled_df,
                 use_container_width=True,
                 height=400
             )
-            
+
             st.info(f"Showing {len(filtered_df)} of {len(st.session_state.processed_df)} total stones")
-            
+
             # Download button
             st.markdown("---")
             st.subheader("📥 Export Results")
-            
+
             # Create Excel file in memory
             output_buffer = io.BytesIO()
             with pd.ExcelWriter(output_buffer, engine='openpyxl') as writer:
                 st.session_state.processed_df.to_excel(writer, sheet_name='Stone Selection Results', index=False)
-                
+
                 # Add summary sheet
                 summary_df = pd.DataFrame([stats])
                 summary_df.to_excel(writer, sheet_name='Summary Statistics', index=False)
-            
+
             output_buffer.seek(0)
-            
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"stones_selected_output_{timestamp}.xlsx"
-            
+
             st.download_button(
                 label="Download Excel",
                 data=output_buffer.getvalue(),
                 file_name=filename,
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            
+
     except Exception as e:
         st.error(f"❌ Error loading files: {str(e)}")
         st.info("Please ensure your Excel files are properly formatted and not corrupted.")
