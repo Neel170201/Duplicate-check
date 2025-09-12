@@ -319,30 +319,30 @@ def main():
 
         .diamond-storm-container {
             position: relative;
-            background: linear-gradient(45deg,
-                #00FF9D,   /* neon mint */
-                #5EEAD4,   /* soft aqua */
-                #6CDBFA,   /* baby blue */
-                #8EC5FC,   /* soft sky */
-                #00C6FF,   /* electric blue */
-                #FFD700,   /* classic gold */
-                #C0C0C0,   /* pure silver */
-                #5F72BE,   /* deep periwinkle */
-                #9D4EDD,   /* violet indigo */
-                #FF6AC2,   /* electric pink */
-                #FFB6B9,   /* blush */
-                #C3F584,   /* lime mint */
-                #00DFD8,   /* aqua pop */
-                #A7F0BA,   /* minty white */
-                #3B82F6,   /* soft blue */
-                #DAA520,   /* goldenrod */
-                #D4AF37,   /* rich gold */
-                #E5E4E2    /* platinum silver */
-            );
+                background: linear-gradient(45deg,
+                    #00FF9D,   /* neon mint */
+                    #5EEAD4,   /* soft aqua */
+                    #6CDBFA,   /* baby blue */
+                    #8EC5FC,   /* soft sky */
+                    #00C6FF,   /* electric blue */
+                    #FFD700,   /* classic gold */
+                    #C0C0C0,   /* pure silver */
+                    #5F72BE,   /* deep periwinkle */
+                    #9D4EDD,   /* violet indigo */
+                    #FF6AC2,   /* electric pink */
+                    #FFB6B9,   /* blush */
+                    #C3F584,   /* lime mint */
+                    #00DFD8,   /* aqua pop */
+                    #A7F0BA,   /* minty white */
+                    #3B82F6,   /* soft blue */
+                    #DAA520,   /* goldenrod */
+                    #D4AF37,   /* rich gold */
+                    #E5E4E2    /* platinum silver */
+                );
 
-            background-size: 1500% 1500%;
-            animation: gradientShift 30s ease infinite,
-                       glowPulse 6s ease-in-out infinite;
+                background-size: 1500% 1500%;
+                animation: gradientShift 30s ease infinite,
+                        glowPulse 6s ease-in-out infinite;
 
             padding: 24px;
             border-radius: 24px;
@@ -481,132 +481,192 @@ def main():
             st.warning(f"⚠️ These shapes are in Party File but missing in Master File: {', '.join(missing_shapes)}")
 
         st.success("✅ Files loaded successfully!")
+
+        tab1, tab2 = st.tabs(["📊 Stone Selection", "📈 Master Analysis"])
+
+        with tab1:
         # Show file info
-        col1 = st.columns(1)[0]  # Only one column now
-        with col1:
-            st.metric("Available Stones", f"{len(pool_df)} stones")
-
-        # Process button
-        if st.button("🔄 Process Stone Selection", type="primary"):
-            with st.spinner("Processing stone selection..."):
-                try:
-                    # ✅ Use filtered master file
-                    processed_df = process_stones_selection(filtered_master_df, pool_df)
-
-                    # Store in session state
-                    st.session_state.processed_df = processed_df
-                    st.session_state.statistics = calculate_statistics(processed_df)
-
-                    st.success("✅ Processing completed!")
-                    st.rerun()
-
-                except Exception as e:
-                    st.error(f"❌ Error during processing: {str(e)}")
-
-        # Display results if available
-        if 'processed_df' in st.session_state:
-            st.markdown("---")
-            st.header("📊 Results Summary")
-
-            # Statistics
-            stats = st.session_state.statistics
-            col1, col2, col3, col4 = st.columns(4)
-
+            col1 = st.columns(1)[0]  # Only one column now
             with col1:
-                st.metric("Total Stones", stats['total_stones'])
-            with col2:
-                st.metric("Selections", stats['selections'], f"{stats['selection_rate']:.1f}%")
-            with col3:
-                st.metric("Rejections", stats['rejections'])
-            with col4:
-                st.metric("Avg Fulfillment", f"{stats['avg_fulfillment']:.1f}%")
+                st.metric("Available Stones", f"{len(pool_df)} stones")
 
-            # Results table
-            st.subheader("🔍 Detailed Results")
+            # Process button
+            if st.button("🔄 Process Stone Selection", type="primary"):
+                with st.spinner("Processing stone selection..."):
+                    try:
+                        # ✅ Use filtered master file
+                        processed_df = process_stones_selection(filtered_master_df, pool_df)
 
-            df = st.session_state.processed_df.copy()
+                        # Store in session state
+                        st.session_state.processed_df = processed_df
+                        st.session_state.statistics = calculate_statistics(processed_df)
 
-            # Create 5 columns in one row
-            col1, col2, col3, col4, col5 = st.columns(5)
+                        st.success("✅ Processing completed!")
+                        st.rerun()
 
-            # Shape Filter
-            with col1:
-                shape_options = sorted(df['Shape'].dropna().unique().tolist())
-                shape_filter = st.multiselect("Shape", options=shape_options)
+                    except Exception as e:
+                        st.error(f"❌ Error during processing: {str(e)}")
 
-            df_shape = df[df['Shape'].isin(shape_filter)] if shape_filter else df
+            # Display results if available
+            if 'processed_df' in st.session_state:
+                st.markdown("---")
+                st.header("📊 Results Summary")
 
-            # Color Filter
-            with col2:
-                color_options = sorted(df_shape['Color'].dropna().unique().tolist())
-                color_filter = st.multiselect("Color", options=color_options)
+                # Statistics
+                stats = st.session_state.statistics
+                col1, col2, col3, col4 = st.columns(4)
 
-            df_color = df_shape[df_shape['Color'].isin(color_filter)] if color_filter else df_shape
+                with col1:
+                    st.metric("Total Stones", stats['total_stones'])
+                with col2:
+                    st.metric("Selections", stats['selections'], f"{stats['selection_rate']:.1f}%")
+                with col3:
+                    st.metric("Rejections", stats['rejections'])
+                with col4:
+                    st.metric("Avg Fulfillment", f"{stats['avg_fulfillment']:.1f}%")
 
-            # Clarity Filter
-            with col3:
-                clarity_options = sorted(df_color['Clarity'].dropna().unique().tolist())
-                clarity_filter = st.multiselect("Clarity", options=clarity_options)
+                # Results table
+                st.subheader("🔍 Detailed Results")
 
-            df_clarity = df_color[df_color['Clarity'].isin(clarity_filter)] if clarity_filter else df_color
+                df = st.session_state.processed_df.copy()
 
-            # Group Filter
-            with col4:
-                group_options = sorted(df_clarity['Group'].dropna().unique().tolist())
-                group_filter = st.multiselect("Group", options=group_options)
+                # Create 5 columns in one row
+                col1, col2, col3, col4, col5 = st.columns(5)
 
-            df_group = df_clarity[df_clarity['Group'].isin(group_filter)] if group_filter else df_clarity
+                # Shape Filter
+                with col1:
+                    shape_options = sorted(df['Shape'].dropna().unique().tolist())
+                    shape_filter = st.multiselect("Shape", options=shape_options)
 
-            # Status Filter
-            with col5:
-                remark_options = sorted(df_group['Remark'].dropna().unique().tolist())
-                remark_filter = st.multiselect("Status", options=remark_options)
+                df_shape = df[df['Shape'].isin(shape_filter)] if shape_filter else df
 
-            # Final filter
-            filtered_df = df_group[df_group['Remark'].isin(remark_filter)] if remark_filter else df_group
+                # Color Filter
+                with col2:
+                    color_options = sorted(df_shape['Color'].dropna().unique().tolist())
+                    color_filter = st.multiselect("Color", options=color_options)
 
-            # Color code the dataframe for better visualization
-            def highlight_remark(val):
-                if val == 'SELECTION':
-                    return 'background-color: #d4edda; color: #155724'
-                elif val == 'REJECTION':
-                    return 'background-color: #f8d7da; color: #721c24'
-                return ''
+                df_color = df_shape[df_shape['Color'].isin(color_filter)] if color_filter else df_shape
 
-            styled_df = filtered_df.style.applymap(highlight_remark, subset=['Remark'])
+                # Clarity Filter
+                with col3:
+                    clarity_options = sorted(df_color['Clarity'].dropna().unique().tolist())
+                    clarity_filter = st.multiselect("Clarity", options=clarity_options)
 
-            st.dataframe(
-                styled_df,
-                use_container_width=True,
-                height=400
+                df_clarity = df_color[df_color['Clarity'].isin(clarity_filter)] if clarity_filter else df_color
+
+                # Group Filter
+                with col4:
+                    group_options = sorted(df_clarity['Group'].dropna().unique().tolist())
+                    group_filter = st.multiselect("Group", options=group_options)
+
+                df_group = df_clarity[df_clarity['Group'].isin(group_filter)] if group_filter else df_clarity
+
+                # Status Filter
+                with col5:
+                    remark_options = sorted(df_group['Remark'].dropna().unique().tolist())
+                    remark_filter = st.multiselect("Status", options=remark_options)
+
+                # Final filter
+                filtered_df = df_group[df_group['Remark'].isin(remark_filter)] if remark_filter else df_group
+
+                # Color code the dataframe for better visualization
+                def highlight_remark(val):
+                    if val == 'SELECTION':
+                        return 'background-color: #d4edda; color: #155724'
+                    elif val == 'REJECTION':
+                        return 'background-color: #f8d7da; color: #721c24'
+                    return ''
+
+                styled_df = filtered_df.style.applymap(highlight_remark, subset=['Remark'])
+
+                st.dataframe(
+                    styled_df,
+                    use_container_width=True,
+                    height=400
+                )
+
+                st.info(f"Showing {len(filtered_df)} of {len(st.session_state.processed_df)} total stones")
+
+                # Download button
+                st.markdown("---")
+                st.subheader("📥 Export Results")
+
+                # Create Excel file in memory
+                output_buffer = io.BytesIO()
+                with pd.ExcelWriter(output_buffer, engine='openpyxl') as writer:
+                    st.session_state.processed_df.to_excel(writer, sheet_name='Stone Selection Results', index=False)
+
+                    # Add summary sheet
+                    summary_df = pd.DataFrame([stats])
+                    summary_df.to_excel(writer, sheet_name='Summary Statistics', index=False)
+
+                output_buffer.seek(0)
+
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"stones_selected_output_{timestamp}.xlsx"
+
+                st.download_button(
+                    label="Download Excel",
+                    data=output_buffer.getvalue(),
+                    file_name=filename,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        
+                )
+        with tab2:
+            st.header("🍞🥛 Bread & Butter Items - Shortage Analysis")
+
+            st.subheader("📉 Shortage in Core Items (Sizes 1–3.5, Colors D/E/F, Clarity VVS1–VS2)")
+
+            # Ensure numeric
+            master_df['Grid'] = pd.to_numeric(master_df['Grid'], errors='coerce').fillna(0)
+            master_df['Available'] = pd.to_numeric(master_df['Available'], errors='coerce').fillna(0)
+
+            # Calculate availability %
+            master_df['Available_%'] = np.where(
+                master_df['Grid'] > 0,
+                (master_df['Available'] / master_df['Grid']) * 100,
+                100
             )
 
-            st.info(f"Showing {len(filtered_df)} of {len(st.session_state.processed_df)} total stones")
+            # ✅ Allowed filters
+            allowed_sizes = [1, 1.5, 2, 2.5, 3, 3.5]
+            allowed_colors = ["D", "E", "F"]
+            allowed_clarity = ["VVS1", "VVS2", "VS1", "VS2"]
 
-            # Download button
-            st.markdown("---")
-            st.subheader("📥 Export Results")
+            # ✅ Apply filters + shortfall condition
+            shortage_df = master_df[
+                (master_df['Grid'] > 0) &
+                (master_df['Available_%'] < 20) &
+                (master_df['From Size'].isin(allowed_sizes)) &
+                (master_df['Color'].str.upper().isin(allowed_colors)) &
+                (master_df['Clarity'].str.upper().isin([c.upper() for c in allowed_clarity]))
+            ].copy()
 
-            # Create Excel file in memory
-            output_buffer = io.BytesIO()
-            with pd.ExcelWriter(output_buffer, engine='openpyxl') as writer:
-                st.session_state.processed_df.to_excel(writer, sheet_name='Stone Selection Results', index=False)
+            # ✅ Sort Grid descending
+            shortage_df = shortage_df.sort_values(by="Grid", ascending=False)
 
-                # Add summary sheet
-                summary_df = pd.DataFrame([stats])
-                summary_df.to_excel(writer, sheet_name='Summary Statistics', index=False)
+            if shortage_df.empty:
+                st.success("✅ All Bread & Butter items (Sizes 1–3.5, Colors D/E/F, Clarity VVS1–VS2) have at least 80% availability.")
+            else:
+                st.error(f"⚠️ {len(shortage_df)} Shortage found in Bread & Butter items (critical inventory)!")
+                st.dataframe(
+                    shortage_df[['Shape','From Size','To Size','Color','Clarity','Grid','Available','Available_%']],
+                    use_container_width=True
+                )
 
-            output_buffer.seek(0)
+                # ✅ Download shortage list
+                shortage_excel = io.BytesIO()
+                with pd.ExcelWriter(shortage_excel, engine='openpyxl') as writer:
+                    shortage_df.to_excel(writer, sheet_name='BreadButter_Shortage', index=False)
+                shortage_excel.seek(0)
 
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"stones_selected_output_{timestamp}.xlsx"
+                st.download_button(
+                    label="📥 Download Bread & Butter Shortfall (Excel)",
+                    data=shortage_excel,
+                    file_name="bread_butter_shortage.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
-            st.download_button(
-                label="Download Excel",
-                data=output_buffer.getvalue(),
-                file_name=filename,
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
 
     except Exception as e:
         st.error(f"❌ Error loading files: {str(e)}")
