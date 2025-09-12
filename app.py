@@ -618,7 +618,6 @@ def main():
             st.subheader("📉 Shortage in Core Items (Sizes {1 , 1.5 , 2 , 2.5 , 3 , 3.5},  Colors D/E/F, Clarity VVS1–VS2)")
             st.subheader("Requirements with >80% Shortfall")
 
-
             # Ensure numeric
             master_df['Grid'] = pd.to_numeric(master_df['Grid'], errors='coerce').fillna(0)
             master_df['Available'] = pd.to_numeric(master_df['Available'], errors='coerce').fillna(0)
@@ -630,12 +629,12 @@ def main():
                 100
             )
 
-            # ✅ Allowed filters
+            # Allowed filters
             allowed_sizes = [1, 1.5, 2, 2.5, 3, 3.5]
             allowed_colors = ["D", "E", "F"]
             allowed_clarity = ["VVS1", "VVS2", "VS1", "VS2"]
 
-            # ✅ Apply filters + shortfall condition
+            # Apply filters + shortfall condition
             shortage_df = master_df[
                 (master_df['Grid'] > 0) &
                 (master_df['Available_%'] < 20) &
@@ -644,7 +643,6 @@ def main():
                 (master_df['Clarity'].str.upper().isin([c.upper() for c in allowed_clarity]))
             ].copy()
 
-            # ✅ Sort Grid descending
             shortage_df = shortage_df.sort_values(by="Grid", ascending=False)
 
             if shortage_df.empty:
@@ -654,14 +652,31 @@ def main():
 
                 col1, col2, col3, col4 = st.columns(4)
 
+                # ✅ Add unique keys to each multiselect
                 with col1:
-                    shape_filter = st.multiselect("Shape", sorted(shortage_df['Shape'].dropna().unique()))
+                    shape_filter = st.multiselect(
+                        "Shape",
+                        options=sorted(shortage_df['Shape'].dropna().unique()),
+                        key="bb_shape_filter"
+                    )
                 with col2:
-                    size_filter = st.multiselect("From Size", sorted(shortage_df['From Size'].dropna().unique()))
+                    size_filter = st.multiselect(
+                        "From Size",
+                        options=sorted(shortage_df['From Size'].dropna().unique()),
+                        key="bb_size_filter"
+                    )
                 with col3:
-                    color_filter = st.multiselect("Color", sorted(shortage_df['Color'].dropna().unique()))
+                    color_filter = st.multiselect(
+                        "Color",
+                        options=sorted(shortage_df['Color'].dropna().unique()),
+                        key="bb_color_filter"
+                    )
                 with col4:
-                    clarity_filter = st.multiselect("Clarity", sorted(shortage_df['Clarity'].dropna().unique()))
+                    clarity_filter = st.multiselect(
+                        "Clarity",
+                        options=sorted(shortage_df['Clarity'].dropna().unique()),
+                        key="bb_clarity_filter"
+                    )
 
                 # Apply filters dynamically
                 filtered_df = shortage_df.copy()
@@ -673,13 +688,15 @@ def main():
                     filtered_df = filtered_df[filtered_df['Color'].isin(color_filter)]
                 if clarity_filter:
                     filtered_df = filtered_df[filtered_df['Clarity'].isin(clarity_filter)]
-                        
+
                 st.dataframe(
                     filtered_df[['Shape','From Size','To Size','Color','Clarity','Grid','Available','Available_%']],
                     use_container_width=True
                 )
+
                 st.info(f"Showing {len(filtered_df)} of {len(shortage_df)} Bread & Butter shortage requirements")
-                # ✅ Download shortage list
+
+                # Download shortage list
                 shortage_excel = io.BytesIO()
                 with pd.ExcelWriter(shortage_excel, engine='openpyxl') as writer:
                     shortage_df.to_excel(writer, sheet_name='BreadButter_Shortage', index=False)
