@@ -232,36 +232,53 @@ def process_stones_selection(master_df, pool_df):
     return pool
 
 def calculate_statistics(processed_df):
-    """Calculate summary statistics from processed dataframe."""
+    """Calculate summary statistics from processed dataframe safely."""
     if processed_df.empty:
-        return None  # Skip if no data
+        return {
+            'total_stones': 0,
+            'selections': 0,
+            'rejections': 0,
+            'selection_rate': 0.0,
+            'avg_fulfillment': 0.0,
+            'unique_requirements': 0
+        }
 
     total_stones = len(processed_df)
     selections = (processed_df['Remark'] == 'SELECTION').sum()
     rejections = (processed_df['Remark'] == 'REJECTION').sum()
 
+    # ✅ Safe groupby with numeric conversion
     grouped = processed_df.groupby(['Shape', 'Group', 'Color', 'Clarity']).agg({
         'Grid': 'first',
         'Available': 'first',
         'Remark': lambda x: (x == 'SELECTION').sum()
     }).reset_index()
 
-    grouped['Required'] = grouped['Grid'] - grouped['Available']
-    grouped['Required'] = grouped['Required'].replace(0, np.nan)  # Prevent division by zero
+    # Ensure numeric types
+    grouped['Grid'] = pd.to_numeric(grouped['Grid'], errors='coerce').fillna(0)
+    grouped['Available'] = pd.to_numeric(grouped['Available'], errors='coerce').fillna(0)
 
-    grouped['Fulfillment_Rate'] = (grouped['Remark'] / grouped['Required'] * 100).clip(upper=100).round(2)
-    grouped['Fulfillment_Rate'].fillna(100.0, inplace=True)  # Assume 100% if nothing required
+    # ✅ Required stones (never negative)
+    grouped['Required'] = (grouped['Grid'] - grouped['Available']).clip(lower=0)
 
-    avg_fulfillment = grouped['Fulfillment_Rate'].mean()
+    # ✅ Fulfillment calculation
+    grouped['Fulfillment_Rate'] = np.where(
+        grouped['Required'] > 0,
+        (grouped['Remark'] / grouped['Required'] * 100).clip(upper=100),
+        100.0  # If nothing required → assume 100% fulfilled
+    )
+
+    avg_fulfillment = grouped['Fulfillment_Rate'].mean() if not grouped.empty else 0.0
 
     return {
-        'total_stones': total_stones,
-        'selections': selections,
-        'rejections': rejections,
-        'selection_rate': (selections / total_stones * 100) if total_stones > 0 else None,
-        'avg_fulfillment': avg_fulfillment,
+        'total_stones': int(total_stones),
+        'selections': int(selections),
+        'rejections': int(rejections),
+        'selection_rate': round((selections / total_stones * 100), 2) if total_stones > 0 else 0.0,
+        'avg_fulfillment': round(avg_fulfillment, 2),
         'unique_requirements': len(grouped)
     }
+
 
 def main(): 
         
