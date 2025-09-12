@@ -482,7 +482,7 @@ def main():
 
         st.success("✅ Files loaded successfully!")
 
-        tab1, tab2 = st.tabs(["📊 Stone Selection", "📈 Master Analysis"])
+        tab1, tab2 = st.tabs(["📊 Stone Selection", "📈 Shortage List"])
 
         with tab1:
         # Show file info
@@ -651,12 +651,34 @@ def main():
                 st.success("✅ All Bread & Butter items (Sizes 1–3.5, Colors D/E/F, Clarity VVS1–VS2) have at least 80% availability.")
             else:
                 st.error(f"⚠️ {len(shortage_df)} Shortage found in Bread & Butter items (critical inventory)!")
-                
+
+                col1, col2, col3, col4 = st.columns(4)
+
+                with col1:
+                    shape_filter = st.multiselect("Shape", sorted(shortage_df['Shape'].dropna().unique()))
+                with col2:
+                    size_filter = st.multiselect("From Size", sorted(shortage_df['From Size'].dropna().unique()))
+                with col3:
+                    color_filter = st.multiselect("Color", sorted(shortage_df['Color'].dropna().unique()))
+                with col4:
+                    clarity_filter = st.multiselect("Clarity", sorted(shortage_df['Clarity'].dropna().unique()))
+
+                # Apply filters dynamically
+                filtered_df = shortage_df.copy()
+                if shape_filter:
+                    filtered_df = filtered_df[filtered_df['Shape'].isin(shape_filter)]
+                if size_filter:
+                    filtered_df = filtered_df[filtered_df['From Size'].isin(size_filter)]
+                if color_filter:
+                    filtered_df = filtered_df[filtered_df['Color'].isin(color_filter)]
+                if clarity_filter:
+                    filtered_df = filtered_df[filtered_df['Clarity'].isin(clarity_filter)]
+                        
                 st.dataframe(
-                    shortage_df[['Shape','From Size','To Size','Color','Clarity','Grid','Available','Available_%']],
+                    filtered_df[['Shape','From Size','To Size','Color','Clarity','Grid','Available','Available_%']],
                     use_container_width=True
                 )
-
+                st.info(f"Showing {len(filtered_df)} of {len(shortage_df)} Bread & Butter shortage requirements")
                 # ✅ Download shortage list
                 shortage_excel = io.BytesIO()
                 with pd.ExcelWriter(shortage_excel, engine='openpyxl') as writer:
