@@ -615,7 +615,9 @@ def main():
         with tab2:
             st.header("🍞🥛 Bread & Butter Items - Shortage Analysis")
 
-            st.subheader("📉 Shortage in Core Items (Sizes 1–3.5, Colors D/E/F, Clarity VVS1–VS2)")
+            st.subheader("📉 Shortage in Core Items (Sizes {1 , 1.5 , 2 , 2.5 , 3 , 3.5},  Colors D/E/F, Clarity VVS1–VS2)")
+            st.subheader("Requirements with >80% Shortfall")
+
 
             # Ensure numeric
             master_df['Grid'] = pd.to_numeric(master_df['Grid'], errors='coerce').fillna(0)
@@ -649,6 +651,7 @@ def main():
                 st.success("✅ All Bread & Butter items (Sizes 1–3.5, Colors D/E/F, Clarity VVS1–VS2) have at least 80% availability.")
             else:
                 st.error(f"⚠️ {len(shortage_df)} Shortage found in Bread & Butter items (critical inventory)!")
+                
                 st.dataframe(
                     shortage_df[['Shape','From Size','To Size','Color','Clarity','Grid','Available','Available_%']],
                     use_container_width=True
