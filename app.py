@@ -17,7 +17,7 @@ st.markdown("""
 /* 🌊 White background with subtle wave texture */
 .stApp {
     background: #d3edd7;
-    background-image: url("https://www.transparenttextures.com/patterns/skulls.png");
+    background-image: url("https://www.transparenttextures.com/patterns/arabesque.png");
     background-repeat: repeat;
     font-family: 'Segoe UI', sans-serif;
 }
