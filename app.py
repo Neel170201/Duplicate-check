@@ -114,6 +114,57 @@ section[data-testid="stFileUploader"] .css-1jfc3zo:hover {
 
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* 🍏 iOS Glass Summary Cards */
+.glass-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin: 20px 0;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: 22px;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.65),
+        0 10px 28px rgba(0, 0, 0, 0.14);
+    transition: all 0.25s ease;
+}
+
+.glass-card:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.75),
+        0 16px 36px rgba(0,0,0,0.2);
+}
+
+.glass-title {
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+.glass-value {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+
+.glass-sub {
+    font-size: 13px;
+    margin-top: 4px;
+    color: #0f766e;
+    font-weight: 600;
+}
+</style>
+""", unsafe_allow_html=True)
 
 
 
@@ -506,18 +557,38 @@ def main():
                 st.markdown("---")
                 st.header("📊 Results Summary")
 
-                # Statistics
-                stats = st.session_state.statistics
-                col1, col2, col3, col4 = st.columns(4)
-
-                with col1:
-                    st.metric("Total Stones", stats['total_stones'])
-                with col2:
-                    st.metric("Selections", stats['selections'], f"{stats['selection_rate']:.1f}%")
-                with col3:
-                    st.metric("Rejections", stats['rejections'])
-                with col4:
-                    st.metric("Avg Fulfillment", f"{stats['avg_fulfillment']:.1f}%")
+                    stats = st.session_state.statistics
+                    
+                    st.markdown("""
+                    ### 📊 Results Summary
+                    """)
+                    
+                    st.markdown(f"""
+                    <div class="glass-summary">
+                    
+                        <div class="glass-card">
+                            <div class="glass-title">Total Stones</div>
+                            <div class="glass-value">{stats['total_stones']}</div>
+                        </div>
+                    
+                        <div class="glass-card">
+                            <div class="glass-title">Selections</div>
+                            <div class="glass-value">{stats['selections']}</div>
+                            <div class="glass-sub">↑ {stats['selection_rate']:.1f}%</div>
+                        </div>
+                    
+                        <div class="glass-card">
+                            <div class="glass-title">Rejections</div>
+                            <div class="glass-value">{stats['rejections']}</div>
+                        </div>
+                    
+                        <div class="glass-card">
+                            <div class="glass-title">Avg Fulfillment</div>
+                            <div class="glass-value">{stats['avg_fulfillment']:.1f}%</div>
+                        </div>
+                    
+                    </div>
+                    """, unsafe_allow_html=True)
 
                 # Results table
                 st.subheader("🔍 Detailed Results")
