@@ -718,5 +718,3 @@ if __name__ == "__main__":
     main()
 
 
-
-muje isko accha design dena he smooth look
