@@ -16,10 +16,13 @@ st.markdown("""
 <style>
 /* 🌊 White background with subtle wave texture */
 .stApp {
-    background: #d3edd7;
-    background-image: url("https://www.transparenttextures.com/patterns/skulls.png");
-    background-repeat: repeat;
-    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(
+        135deg,
+        #e8f5e9,
+        #e3f2fd,
+        #f3e5f5
+    );
+    font-family: 'Inter', 'Segoe UI', sans-serif;
 }
 
 /* 🌊 Slowly shift the wave pattern */
@@ -30,18 +33,19 @@ st.markdown("""
 /* 🧊 White glass container */
 .block-container {
     max-width: 1500px;
-    margin: 3rem auto;
-    padding: 2rem;
+    margin: 2.5rem auto;
+    padding: 2.2rem;
 
-    background: rgba(255, 255, 255, 0.3);  /* translucent white */
-    backdrop-filter: blur(0.5px);
-    -webkit-backdrop-filter: blur(0.5px);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
 
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 20px;
+    box-shadow:
+        0 10px 35px rgba(0,0,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.6);
 
-    position: relative;
-    z-index: 1;
+    transition: all 0.3s ease;
 }
 
 /* 🔤 Text remains black for readability */
