@@ -15,15 +15,7 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* 🌊 White background with subtle wave texture */
-.stApp {
-    background: linear-gradient(
-        135deg,
-        #e8f5e9,
-        #e3f2fd,
-        #f3e5f5
-    );
-    font-family: 'Inter', 'Segoe UI', sans-serif;
-}
+.stApp { background: #d3edd7; background-image: url("https://www.transparenttextures.com/patterns/skulls.png"); background-repeat: repeat; font-family: 'Segoe UI', sans-serif; }
 
 /* 🌊 Slowly shift the wave pattern */
 @keyframes waveShift {
