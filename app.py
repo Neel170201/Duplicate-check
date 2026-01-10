@@ -25,21 +25,19 @@ st.markdown("""
 /* 🧊 White glass container */
 .block-container {
     max-width: 1500px;
-    margin: 2.5rem auto;
-    padding: 2.2rem;
+    margin: 3rem auto;
+    padding: 2rem;
 
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: rgba(255, 255, 255, 0.3);  /* translucent white */
+    backdrop-filter: blur(0.5px);
+    -webkit-backdrop-filter: blur(0.5px);
 
-    border-radius: 20px;
-    box-shadow:
-        0 10px 35px rgba(0,0,0,0.08),
-        inset 0 1px 0 rgba(255,255,255,0.6);
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 
-    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
-
 /* 🔤 Text remains black for readability */
 html, body, h1, h2, h3, h4, h5, p, label, span, div {
     color: #111 !important;
