@@ -4,78 +4,44 @@ import io
 from datetime import datetime
 import numpy as np
 
-import streamlit as st
-import streamlit.components.v1 as components
+st.markdown("""
+<style>
+.snowflake {
+    position: fixed;
+    top: -10px;
+    z-index: 9999;
+    color: rgba(180, 230, 255, 0.9);
+    font-size: 1em;
+    pointer-events: none;
+    animation-name: fall;
+    animation-timing-function: linear;
+}
 
-# HTML and JavaScript for the snowflakes effect
-snowflake_effect = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snowflakes</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: #282c34;
-        }
-        #snow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        .flake {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
-            pointer-events: none;
-        }
-    </style>
-</head>
-<body>
-    <div id="snow"></div>
-    <script>
-        const snow = document.getElementById('snow');
-        const numFlakes = 100;
+@keyframes fall {
+    to {
+        transform: translateY(110vh);
+    }
+}
+</style>
 
-        for (let i = 0; i < numFlakes; i++) {
-            const flake = document.createElement('div');
-            flake.className = 'flake';
-            const size = Math.random() * 5 + 2; // Random size between 2px and 7px
-            flake.style.width = size + 'px';
-            flake.style.height = size + 'px';
-            flake.style.left = Math.random() * window.innerWidth + 'px';
-            flake.style.animationDuration = Math.random() * 3 + 2 + 's'; // Random duration between 2s and 5s
-            flake.style.animationDelay = Math.random() * 5 + 's'; // Random delay
-            snow.appendChild(flake);
-            flake.style.animationName = 'fall';
-            flake.style.animationTimingFunction = 'linear';
-            flake.style.animationIterationCount = 'infinite';
-        }
+<script>
+const snowCount = 50;
 
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes fall {
-                to {
-                    transform: translateY(100vh);
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    </script>
-</body>
-</html>
-"""
+for (let i = 0; i < snowCount; i++) {
+    let snow = document.createElement("div");
+    snow.innerHTML = "❄";
+    snow.className = "snowflake";
 
-# Render the snowflake effect in Streamlit
-components.html(snowflake_effect, height=600)
+    snow.style.left = Math.random() * 100 + "vw";
+    snow.style.fontSize = Math.random() * 10 + 10 + "px";
+    snow.style.animationDuration = Math.random() * 5 + 6 + "s";
+    snow.style.opacity = Math.random();
+
+    document.body.appendChild(snow);
+}
+</script>
+""", unsafe_allow_html=True)
+
 
 # Configure page
 st.set_page_config(
