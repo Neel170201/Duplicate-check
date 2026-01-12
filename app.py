@@ -4,6 +4,15 @@ import io
 from datetime import datetime
 import numpy as np
 
+
+
+
+# Configure page
+st.set_page_config(
+    page_title="LGD Trading LLP",
+    page_icon="💎",
+    layout="wide"
+)   
 st.markdown("""
 <style>
 .snowflake {
@@ -41,15 +50,6 @@ for (let i = 0; i < snowCount; i++) {
 }
 </script>
 """, unsafe_allow_html=True)
-
-
-# Configure page
-st.set_page_config(
-    page_title="LGD Trading LLP",
-    page_icon="💎",
-    layout="wide"
-)   
-
 st.markdown("""
 <style>
 /* 🌊 White background with subtle wave texture */
