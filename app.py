@@ -13,43 +13,7 @@ st.set_page_config(
     page_icon="💎",
     layout="wide"
 )   
-st.markdown("""
-<style>
-.snowflake {
-    position: fixed;
-    top: -10px;
-    z-index: 9999;
-    color: rgba(180, 230, 255, 0.9);
-    font-size: 1em;
-    pointer-events: none;
-    animation-name: fall;
-    animation-timing-function: linear;
-}
 
-@keyframes fall {
-    to {
-        transform: translateY(110vh);
-    }
-}
-</style>
-
-<script>
-const snowCount = 50;
-
-for (let i = 0; i < snowCount; i++) {
-    let snow = document.createElement("div");
-    snow.innerHTML = "❄";
-    snow.className = "snowflake";
-
-    snow.style.left = Math.random() * 100 + "vw";
-    snow.style.fontSize = Math.random() * 10 + 10 + "px";
-    snow.style.animationDuration = Math.random() * 5 + 6 + "s";
-    snow.style.opacity = Math.random();
-
-    document.body.appendChild(snow);
-}
-</script>
-""", unsafe_allow_html=True)
 st.markdown("""
 <style>
 /* 🌊 White background with subtle wave texture */
