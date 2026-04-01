@@ -102,23 +102,7 @@ button:hover {
     border-color: rgba(0, 255, 195, 0.4);
 }
 
-/* 🔘 Browse files button */
-section[data-testid="stFileUploader"] .css-1jfc3zo {
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #111 !important;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-}
 
-section[data-testid="stFileUploader"] .css-1jfc3zo:hover {
-    background-color: rgba(255, 255, 255, 0.25) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-}
 
 </style>
 """, unsafe_allow_html=True)
