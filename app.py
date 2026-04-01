@@ -5,6 +5,8 @@ from datetime import datetime
 import numpy as np
 
 
+
+
 # Configure page
 st.set_page_config(
     page_title="LGD Trading LLP",
@@ -621,5 +623,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
