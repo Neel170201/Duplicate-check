@@ -502,7 +502,7 @@ def main():
                         st.session_state.statistics = calculate_statistics(processed_df)
 
                         st.success("✅ Processing completed!")
-                        st.rerun()
+                        st.experimental_rerun()
 
                     except Exception as e:
                         st.error(f"❌ Error during processing: {str(e)}")
