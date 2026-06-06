@@ -113,7 +113,7 @@ button:hover {
 
 def validate_master_file(df):
     """Validate master file has required columns"""
-    required_columns = ['Shape', 'From Size', 'To Size', 'Color', 'Clarity', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS']
+    required_columns = ['Shape', 'From Size', 'To Size', 'Color', 'Clarity', 'Grid', 'Available', 'On Memo', '1.5 MONTH SOLD PCS']
     missing_columns = [col for col in required_columns if col not in df.columns]
     return len(missing_columns) == 0, missing_columns
 
@@ -133,7 +133,7 @@ def process_stones_selection(master_df, pool_df):
     pool['Grid'] = ''
     pool['Available'] = ''
     pool['On Memo'] = ''
-    pool['3 MONTH SOLD PCS'] = ''
+    pool['1.5 MONTH SOLD PCS'] = ''
     pool['Remark'] = ''
     
     # Process each row in master file
@@ -146,7 +146,7 @@ def process_stones_selection(master_df, pool_df):
         required = row['Grid']
         available = row['Available']
         memo = row['On Memo']
-        sold = row['3 MONTH SOLD PCS']
+        sold = row['1.5 MONTH SOLD PCS']
         
         remaining = required - available
         
@@ -165,11 +165,11 @@ def process_stones_selection(master_df, pool_df):
         pool.loc[match_mask, 'Grid'] = required
         pool.loc[match_mask, 'Available'] = available
         pool.loc[match_mask, 'On Memo'] = memo
-        pool.loc[match_mask, '3 MONTH SOLD PCS'] = sold
+        pool.loc[match_mask, '1.5 MONTH SOLD PCS'] = sold
         
         # Fill 0 in non-matching rows for this iteration only
         inverse_mask = ~match_mask
-        cols = ['Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS']
+        cols = ['Grid', 'Available', 'On Memo', '1.5 MONTH SOLD PCS']
         pool.loc[inverse_mask, cols] = pool.loc[inverse_mask, cols].replace('', 0)
         
         if remaining <= 0:
@@ -210,7 +210,7 @@ def process_stones_selection(master_df, pool_df):
     # Reorder columns as per desired output
     final_columns = [
         'STOCKID', 'Shape', 'Size', 'Color', 'Clarity',
-        'Group', 'Grid', 'Available', 'On Memo', '3 MONTH SOLD PCS',
+        'Group', 'Grid', 'Available', 'On Memo', '1.5 MONTH SOLD PCS',
         'Same', 'Remark'
     ]
     pool = pool[final_columns]
