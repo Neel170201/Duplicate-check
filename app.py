@@ -153,8 +153,9 @@ h1, h2, h3, h4 {
     letter-spacing: 0.04em;
 }
 
-.hero h1 {
-    color: rgba(255,255,255,0.72) !important;
+div.hero h1, .hero h1, .hero h1 * {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     font-size: 2.3rem;
     margin: 0 0 0.35rem 0;
     letter-spacing: 0.01em;
@@ -162,8 +163,9 @@ h1, h2, h3, h4 {
     z-index: 1;
 }
 
-.hero p {
+div.hero p, .hero p {
     color: rgba(255,255,255,0.72) !important;
+    -webkit-text-fill-color: rgba(255,255,255,0.72) !important;
     font-size: 1rem;
     margin: 0;
     font-family: 'Inter', sans-serif;
@@ -532,8 +534,8 @@ def main():
         <div class="hero-top">
             <div>
                 <span class="hero-eyebrow">💎 Diamond &amp; Gemstone Trading</span>
-                <h1>LGD Trading LLP</h1>
-                <p>Automated stone selection and inventory processing</p>
+                <h1 style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">LGD Trading LLP</h1>
+                <p style="color:rgba(255,255,255,0.72) !important;-webkit-text-fill-color:rgba(255,255,255,0.72) !important;">Automated stone selection and inventory processing</p>
             </div>
             <span class="hero-badge">{now_str}</span>
         </div>
