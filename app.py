@@ -154,7 +154,7 @@ h1, h2, h3, h4 {
 }
 
 .hero h1 {
-    color: #ffffff !important;
+    color: rgba(255,255,255,0.72) !important;
     font-size: 2.3rem;
     margin: 0 0 0.35rem 0;
     letter-spacing: 0.01em;
