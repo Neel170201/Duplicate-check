@@ -7,7 +7,7 @@ import numpy as np
 
 # Configure page
 st.set_page_config(
-    page_title="LGD Trading LLP",
+    page_title="BRIGHT TRADING INDIA LLP",
     page_icon="💎",
     layout="wide"
 )
@@ -750,7 +750,7 @@ def main():
 
         st.markdown("""
         <div class="app-footer">
-            LGD Trading LLP <span class="dot">•</span> Internal Stone Selection Tool <span class="dot">•</span> Designed by Neel Limbachiya
+            BRIGHT TRADING INDIA LLP <span class="dot">•</span> Internal Stone Selection Tool <span class="dot">•</span> Designed by Neel Limbachiya
         </div>
         """, unsafe_allow_html=True)
 
