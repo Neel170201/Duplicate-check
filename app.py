@@ -534,7 +534,7 @@ def main():
         <div class="hero-top">
             <div>
                 <span class="hero-eyebrow">💎 Diamond &amp; Gemstone Trading</span>
-                <h1 style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">LGD Trading LLP</h1>
+                <h1 style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">BRIGHT TRADING INDIA LLP</h1>
                 <p style="color:rgba(255,255,255,0.72) !important;-webkit-text-fill-color:rgba(255,255,255,0.72) !important;">Automated stone selection and inventory processing</p>
             </div>
             <span class="hero-badge">{now_str}</span>
