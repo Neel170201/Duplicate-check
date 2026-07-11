@@ -5,110 +5,367 @@ from datetime import datetime
 import numpy as np
 
 
-
-
 # Configure page
 st.set_page_config(
     page_title="LGD Trading LLP",
     page_icon="💎",
     layout="wide"
-)   
+)
 
+# ============================================================
+#  GLOBAL THEME — Navy & Gold, locked to light mode
+# ============================================================
 st.markdown("""
 <style>
-/* 🌊 White background with subtle wave texture */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* ---------- FORCE LIGHT THEME EVERYWHERE ---------- */
+/* Overrides Streamlit's internal theme variables so the app
+   always renders light, even if a visitor's OS/browser is
+   set to dark mode or they had dark mode selected before. */
+:root, .stApp, [data-theme="dark"], .stApp[data-theme="dark"] {
+    --background-color: #ffffff !important;
+    --secondary-background-color: #f2efe6 !important;
+    --text-color: #14171f !important;
+    --primary-color: #c9a24b !important;
+
+    --navy-950: #0a1128;
+    --navy-900: #0f1c3f;
+    --navy-800: #16264f;
+    --navy-700: #1e3163;
+    --gold-500: #c9a24b;
+    --gold-400: #d9b96a;
+    --gold-300: #e8cf94;
+    --cream-50:  #faf8f3;
+    --ink-900:  #14171f;
+    --ink-600:  #4a5164;
+    --success-bg: #e5f5e8;
+    --success-fg: #1e7a34;
+    --danger-bg:  #fbe8e8;
+    --danger-fg:  #b0292f;
+}
+
+html, body, [class*="css"]  {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color-scheme: light !important;
+}
+
+/* Kill any dark-mode surface Streamlit tries to paint */
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"],
+[data-testid="stSidebar"], [data-testid="stToolbar"], body {
+    background-color: #ffffff !important;
+}
+
+/* App background — soft warm neutral with faint diamond-facet texture */
 .stApp {
-    background: #d3edd7;
-    background-image: url("https://www.transparenttextures.com/patterns/skulls.png");
-    background-repeat: repeat;
-    font-family: 'Segoe UI', sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(201,162,75,0.05) 0%, rgba(201,162,75,0) 45%),
+        radial-gradient(circle at 85% 85%, rgba(15,28,63,0.04) 0%, rgba(15,28,63,0) 45%),
+        linear-gradient(180deg, #ffffff 0%, #f8f6f0 100%) !important;
 }
 
-/* 🌊 Slowly shift the wave pattern */
-@keyframes waveShift {
-    0% { background-position: 0 0; }
-    100% { background-position: 800px 400px; }
-}
-/* 🧊 White glass container */
+/* Main content card */
 .block-container {
-    max-width: 1500px;
-    margin: 3rem auto;
-    padding: 2rem;
-
-    background: rgba(255, 255, 255, 0.3);  /* translucent white */
-    backdrop-filter: blur(0.5px);
-    -webkit-backdrop-filter: blur(0.5px);
-
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-
+    max-width: 1420px;
+    margin: 2rem auto;
+    padding: 2.6rem 3rem 3rem 3rem;
+    background: #ffffff;
+    border-radius: 22px;
+    box-shadow: 0 16px 50px rgba(15, 28, 63, 0.09);
+    border: 1px solid rgba(201, 162, 75, 0.18);
     position: relative;
-    z-index: 1;
 }
 
-/* 🔤 Text remains black for readability */
-html, body, h1, h2, h3, h4, h5, p, label, span, div {
-    color: #111 !important;
-}
-            
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(0, 255, 200, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(0, 255, 200, 0.5);
-  }
+/* Base text color */
+html, body, p, label, span, div {
+    color: var(--ink-900);
 }
 
-button {
+h1, h2, h3, h4 {
+    font-family: 'Playfair Display', 'Segoe UI', serif;
+    color: var(--navy-900);
+}
+
+/* ---------- Hero header ---------- */
+.hero {
     position: relative;
-    animation: pulseGlow 3s ease-in-out infinite;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    color: #0f1113 !important;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    padding: 0.65rem 1.3rem;
-    font-weight: 600;
+    background: linear-gradient(120deg, var(--navy-950) 0%, var(--navy-800) 55%, var(--navy-900) 100%);
+    border-radius: 20px;
+    padding: 2.8rem 2.8rem 2.4rem 2.8rem;
+    margin-bottom: 2.2rem;
     overflow: hidden;
-    z-index: 1;
-    transition: all 0.3s ease;
+    border: 1px solid rgba(201, 162, 75, 0.4);
+    box-shadow: 0 16px 40px rgba(10, 17, 40, 0.28);
 }
 
-/* 🔮 Animated glow border on hover */
-button::before {
+.hero::before {
     content: "";
     position: absolute;
-    top: -2px; left: -2px;
-    width: calc(100% + 4px);
-    height: calc(100% + 4px);
-    border-radius: inherit;
-    background: linear-gradient(135deg, #00ffc3, #4a00e0);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-    filter: blur(8px);
+    top: -45%; right: -8%;
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(201,162,75,0.22) 0%, rgba(201,162,75,0) 70%);
+    pointer-events: none;
 }
 
-/* 🎨 Gradient swipe in on hover */
-button:hover::before {
-    opacity: 1;
+.hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(30deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(-30deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 46px 80px, 46px 80px, 46px 80px;
+    pointer-events: none;
 }
 
-/* ✨ Text color change on hover */
-button:hover {
+.hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 1;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    color: var(--gold-300);
+    text-transform: uppercase;
+    border: 1px solid rgba(201, 162, 75, 0.45);
+    padding: 5px 14px;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+    background: rgba(201, 162, 75, 0.07);
+}
+
+.hero-badge {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.55);
+    border: 1px solid rgba(255,255,255,0.18);
+    padding: 5px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+}
+
+.hero h1 {
     color: #ffffff !important;
-    border-color: rgba(0, 255, 195, 0.4);
+    font-size: 2.3rem;
+    margin: 0 0 0.35rem 0;
+    letter-spacing: 0.01em;
+    position: relative;
+    z-index: 1;
 }
 
+.hero p {
+    color: rgba(255,255,255,0.72) !important;
+    font-size: 1rem;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    z-index: 1;
+}
 
+.hero-divider {
+    height: 1px;
+    margin: 1.4rem 0 1.1rem 0;
+    background: linear-gradient(90deg, rgba(201,162,75,0.55), rgba(201,162,75,0.05));
+    position: relative;
+    z-index: 1;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 2.2rem;
+    position: relative;
+    z-index: 1;
+}
+.hero-stats .item { display:flex; flex-direction:column; gap:2px; }
+.hero-stats .item .k { color: var(--gold-300); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.hero-stats .item .v { color: #fff; font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+
+.hero-signature {
+    position: absolute;
+    bottom: 14px;
+    right: 22px;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: rgba(232, 207, 148, 0.6);
+    z-index: 1;
+}
+
+/* ---------- Section labels ---------- */
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--navy-900);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 1.8rem 0 1rem 0;
+}
+.section-label::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(201,162,75,0.5), rgba(201,162,75,0));
+}
+
+/* ---------- Info / helper card ---------- */
+.info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    background: linear-gradient(135deg, #fbf9f4 0%, #f5f0e4 100%);
+    border: 1px solid rgba(201, 162, 75, 0.3);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.4rem;
+}
+.info-card .icon { font-size: 1.4rem; line-height: 1; }
+.info-card .txt-title { font-weight: 700; color: var(--navy-900); font-size: 0.92rem; margin-bottom: 2px; }
+.info-card .txt-sub { color: var(--ink-600); font-size: 0.82rem; }
+
+/* ---------- File uploader ---------- */
+[data-testid="stFileUploaderDropzone"] {
+    background: var(--cream-50) !important;
+    border: 1.5px dashed rgba(201, 162, 75, 0.55) !important;
+    border-radius: 14px !important;
+    transition: all 0.2s ease;
+}
+[data-testid="stFileUploaderDropzone"]:hover {
+    border-color: var(--gold-500) !important;
+    background: #fbf7ec !important;
+}
+
+/* ---------- Buttons ---------- */
+.stButton > button, .stDownloadButton > button {
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+    color: #ffffff !important;
+    border: 1px solid var(--gold-500);
+    border-radius: 10px;
+    padding: 0.65rem 1.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(15, 28, 63, 0.18);
+}
+.stButton > button:hover, .stDownloadButton > button:hover {
+    background: linear-gradient(135deg, var(--navy-700), var(--navy-900));
+    border-color: var(--gold-400);
+    box-shadow: 0 8px 24px rgba(15, 28, 63, 0.3);
+    transform: translateY(-1px);
+    color: #ffffff !important;
+}
+.stButton > button p, .stDownloadButton > button p { color: #ffffff !important; }
+
+/* ---------- Metric cards ---------- */
+[data-testid="stMetric"] {
+    background: linear-gradient(180deg, #ffffff 0%, var(--cream-50) 100%);
+    border: 1px solid rgba(201, 162, 75, 0.28);
+    border-radius: 16px;
+    padding: 1.1rem 1.3rem 0.9rem 1.3rem;
+    box-shadow: 0 6px 18px rgba(15, 28, 63, 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+[data-testid="stMetric"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(15, 28, 63, 0.1);
+    border-color: rgba(201, 162, 75, 0.5);
+}
+[data-testid="stMetricLabel"] {
+    color: var(--ink-600) !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+}
+[data-testid="stMetricValue"] {
+    color: var(--navy-900) !important;
+    font-family: 'Playfair Display', serif;
+}
+
+/* ---------- Alerts ---------- */
+[data-testid="stAlert"] {
+    border-radius: 12px;
+    border: 1px solid rgba(201, 162, 75, 0.25);
+}
+
+/* ---------- Tabs ---------- */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 4px;
+    border-bottom: 1px solid rgba(201,162,75,0.25);
+}
+.stTabs [data-baseweb="tab"] {
+    font-weight: 600;
+    color: var(--ink-600);
+}
+.stTabs [aria-selected="true"] {
+    color: var(--navy-900) !important;
+    border-bottom-color: var(--gold-500) !important;
+}
+
+/* ---------- Multiselect / Select boxes ---------- */
+[data-baseweb="select"] > div {
+    border-radius: 10px !important;
+    border-color: rgba(201, 162, 75, 0.35) !important;
+}
+[data-baseweb="tag"] {
+    background-color: var(--navy-900) !important;
+}
+
+/* ---------- Dataframe ---------- */
+[data-testid="stDataFrame"] {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(201, 162, 75, 0.25);
+    box-shadow: 0 6px 18px rgba(15, 28, 63, 0.05);
+}
+
+/* ---------- Legend chips ---------- */
+.legend-row { display: flex; gap: 0.8rem; margin: 0.6rem 0 1.2rem 0; }
+.legend-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+}
+.legend-chip.sel { background: var(--success-bg); color: var(--success-fg); }
+.legend-chip.rej { background: var(--danger-bg); color: var(--danger-fg); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; display:inline-block; }
+.legend-chip.sel .legend-dot { background: var(--success-fg); }
+.legend-chip.rej .legend-dot { background: var(--danger-fg); }
+
+/* ---------- Divider ---------- */
+hr {
+    border-top: 1px solid rgba(201, 162, 75, 0.3) !important;
+}
+
+/* ---------- Footer ---------- */
+.app-footer {
+    text-align: center;
+    margin-top: 2.6rem;
+    padding-top: 1.3rem;
+    border-top: 1px solid rgba(201, 162, 75, 0.25);
+    color: var(--ink-600);
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+}
+.app-footer .dot { color: var(--gold-500); margin: 0 8px; }
 
 </style>
 """, unsafe_allow_html=True)
-
-
-
 
 
 def validate_master_file(df):
@@ -125,17 +382,17 @@ def validate_pool_file(df):
 
 def process_stones_selection(master_df, pool_df):
     """Process stone selection based on the provided algorithm"""
-    
+
     # Create a copy of pool to avoid modifying original
     pool = pool_df.copy()
-    
+
     # Add empty columns to pool
     pool['Grid'] = ''
     pool['Available'] = ''
     pool['On Memo'] = ''
     pool['1.5 MONTH SOLD PCS'] = ''
     pool['Remark'] = ''
-    
+
     # Process each row in master file
     for idx, row in master_df.iterrows():
         shape = row['Shape']
@@ -147,9 +404,9 @@ def process_stones_selection(master_df, pool_df):
         available = row['Available']
         memo = row['On Memo']
         sold = row['1.5 MONTH SOLD PCS']
-        
+
         remaining = required - available
-        
+
         # Filter matching pool rows (regardless of remaining)
         match_mask = (
             (pool['Shape'].str.lower() == shape.lower()) &
@@ -158,7 +415,7 @@ def process_stones_selection(master_df, pool_df):
             (pool['Color'].str.upper() == color.upper()) &
             (pool['Clarity'].str.upper() == clarity.upper())
         )
-        
+
         # Set Required and Available for all matching pool rows
         pool.loc[match_mask, 'From Size'] = from_size
         pool.loc[match_mask, 'To Size'] = to_size
@@ -166,35 +423,35 @@ def process_stones_selection(master_df, pool_df):
         pool.loc[match_mask, 'Available'] = available
         pool.loc[match_mask, 'On Memo'] = memo
         pool.loc[match_mask, '1.5 MONTH SOLD PCS'] = sold
-        
+
         # Fill 0 in non-matching rows for this iteration only
         inverse_mask = ~match_mask
         cols = ['Grid', 'Available', 'On Memo', '1.5 MONTH SOLD PCS']
         pool.loc[inverse_mask, cols] = pool.loc[inverse_mask, cols].replace('', 0)
-        
+
         if remaining <= 0:
             continue  # nothing to select
-        
+
         # Select unselected eligible rows
         eligible = pool[match_mask & (pool['Remark'] == '')].copy()
-        
+
         # Sort by size ascending
         eligible = eligible.sort_values(by='Size')
-        
+
         # Select top N rows
         selected_indices = eligible.head(int(remaining)).index
-        
+
         # Mark as selected
         pool.loc[selected_indices, 'Remark'] = 'SELECTION'
-    
+
     # Mark remaining blanks as Rejection
     pool.loc[pool['Remark'] == '', 'Remark'] = 'REJECTION'
-    
+
     # Add 'Same' column with count of identical Shape + From Size + To Size + Color + Clarity combinations
     pool['Same'] = pool.groupby(
         ['Shape', 'From Size', 'To Size', 'Color', 'Clarity']
     )['Shape'].transform('count')
-    
+
     # Add 'Group' column with 'From Size' and 'To Size' in 0.00 format
     pool['Group'] = pool.apply(
     lambda row: (
@@ -206,7 +463,7 @@ def process_stones_selection(master_df, pool_df):
     )
     # Drop 'From Size' and 'To Size' columns
     pool.drop(columns=['From Size', 'To Size'], inplace=True)
-    
+
     # Reorder columns as per desired output
     final_columns = [
         'STOCKID', 'Shape', 'Size', 'Color', 'Clarity',
@@ -214,7 +471,7 @@ def process_stones_selection(master_df, pool_df):
         'Same', 'Remark'
     ]
     pool = pool[final_columns]
-    
+
     return pool
 
 def calculate_statistics(processed_df):
@@ -266,171 +523,57 @@ def calculate_statistics(processed_df):
     }
 
 
-def main(): 
-        
-    st.markdown("""
-    <style>
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+def main():
 
-        @keyframes glowPulse {
-            0%, 100% {
-                box-shadow: 0 0 12px rgba(255, 255, 255, 0.4),
-                0 0 24px rgba(255, 255, 255, 0.3);
-    
-                }
-            50% {
-                box-shadow: 0 0 14px rgba(255, 255, 255, 0.3),
-                            0 0 28px rgba(255, 255, 255, 0.4);
-            }
-        }
-
-        @keyframes floatAndRotate {
-            0% {
-                transform: translateY(0px) rotate(0deg);
-                opacity: 0.8;
-            }
-            50% {
-                transform: translateY(-10px) rotate(180deg);
-                opacity: 1;
-            }
-            100% {
-                transform: translateY(0px) rotate(360deg);
-                opacity: 0.8;
-            }
-        }
-
-        .diamond-storm-container {
-            position: relative;
-                background: linear-gradient(45deg,
-                    #00FF9D,   /* neon mint */
-                    #5EEAD4,   /* soft aqua */
-                    #6CDBFA,   /* baby blue */
-                    #8EC5FC,   /* soft sky */
-                    #00C6FF,   /* electric blue */
-                    #FFD700,   /* classic gold */
-                    #C0C0C0,   /* pure silver */
-                    #5F72BE,   /* deep periwinkle */
-                    #9D4EDD,   /* violet indigo */
-                    #FF6AC2,   /* electric pink */
-                    #FFB6B9,   /* blush */
-                    #C3F584,   /* lime mint */
-                    #00DFD8,   /* aqua pop */
-                    #A7F0BA,   /* minty white */
-                    #3B82F6,   /* soft blue */
-                    #DAA520,   /* goldenrod */
-                    #D4AF37,   /* rich gold */
-                    #E5E4E2    /* platinum silver */
-                );
-
-                background-size: 1500% 1500%;
-                animation: gradientShift 30s ease infinite,
-                        glowPulse 6s ease-in-out infinite;
-
-            padding: 24px;
-            border-radius: 24px;
-            text-align: center;
-            color: Black;
-            font-family: 'Segoe UI', 'Roboto', sans-serif;
-            margin-bottom: 24px;  
-            max-width: 1500px;
-            margin-left: auto;
-            margin-right: auto;     
-            overflow: hidden;
-        }
-
-        .diamond-storm-container h1 {
-            font-size: 30px;
-            font-weight: 700;
-            text-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
-            z-index: 1;
-            position: relative;
-        }
-
-        .diamond-storm-container p {
-            font-size: 15px;
-            font-weight: 600;
-            text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
-            z-index: 1;
-            position: relative;
-        }
-
-        .diamond {
-            position: absolute;
-            font-size: 16px;
-            animation: floatAndRotate 6s ease-in-out infinite;
-            opacity: 0.7;
-            
-        }
-        .creator-signature {
-            position: absolute;
-            bottom: 10px;
-            right: 14px;
-            font-size: 13px;
-            color: rgba(0, 0, 0, 0.75);  /* 🖤 Soft black text */
-            font-family: 'Segoe UI', sans-serif;
-            font-style: italic;
-            letter-spacing: 0.3px;
-            background-color: rgba(255, 255, 255, 0.15); /* optional highlight */
-            padding: 4px 10px;
-            border-radius: 8px;
-            backdrop-filter: blur(2px);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            z-index: 2;
-        }
-
-        
-    </style>
-
-    <div class="diamond-storm-container">
-        <!-- Floating diamonds -->
-        <span class="diamond" style="top: 10%; left: 5%; font-size: 28px; animation-delay: 0s;">💎</span>
-        <span class="diamond" style="top: 15%; left: 20%; font-size: 32px; animation-delay: 0.5s;">💎</span>
-        <span class="diamond" style="top: 20%; left: 70%; font-size: 26px; animation-delay: 1s;">💎</span>
-        <span class="diamond" style="top: 30%; left: 10%; font-size: 30px; animation-delay: 1.5s;">💎</span>
-        <span class="diamond" style="top: 40%; left: 25%; font-size: 22px; animation-delay: 2s;">💎</span>
-        <span class="diamond" style="top: 50%; left: 80%; font-size: 34px; animation-delay: 2.5s;">💎</span>
-        <span class="diamond" style="top: 60%; left: 15%; font-size: 29px; animation-delay: 3s;">💎</span>
-        <span class="diamond" style="top: 70%; left: 60%; font-size: 31px; animation-delay: 3.5s;">💎</span>
-        <span class="diamond" style="top: 75%; left: 10%; font-size: 25px; animation-delay: 4s;">💎</span>
-        <span class="diamond" style="top: 85%; left: 35%; font-size: 30px; animation-delay: 4.5s;">💎</span>
-        <span class="diamond" style="top: 90%; left: 80%; font-size: 28px; animation-delay: 5s;">💎</span>
-        <span class="diamond" style="top: 25%; left: 90%; font-size: 24px; animation-delay: 1.2s;">💎</span>
-        <span class="diamond" style="top: 5%; left: 60%; font-size: 36px; animation-delay: 0.7s;">💎</span>
-        <span class="diamond" style="top: 15%; left: 45%; font-size: 27px; animation-delay: 2.3s;">💎</span>
-        <span class="diamond" style="top: 35%; left: 55%; font-size: 23px; animation-delay: 3.3s;">💎</span>
-        <span class="diamond" style="top: 45%; left: 65%; font-size: 33px; animation-delay: 4.1s;">💎</span>
-        <span class="diamond" style="top: 55%; left: 90%; font-size: 30px; animation-delay: 5.2s;">💎</span>
-        <span class="diamond" style="top: 65%; left: 5%; font-size: 26px; animation-delay: 1.6s;">💎</span>
-        <span class="diamond" style="top: 78%; left: 50%; font-size: 29px; animation-delay: 3.8s;">💎</span>
-        <span class="diamond" style="top: 92%; left: 20%; font-size: 35px; animation-delay: 5.5s;">💎</span>
-
-   
-    <h1> LGD Trading LLP</h1>
-    <p>Automated stone selection and inventory processing</p>
-    <div class="creator-signature">Designed by <strong>Neel Limbachiya</strong></div>
+    # ---------- Hero header ----------
+    now_str = datetime.now().strftime("%d %b %Y")
+    st.markdown(f"""
+    <div class="hero">
+        <div class="hero-top">
+            <div>
+                <span class="hero-eyebrow">💎 Diamond &amp; Gemstone Trading</span>
+                <h1>LGD Trading LLP</h1>
+                <p>Automated stone selection and inventory processing</p>
+            </div>
+            <span class="hero-badge">{now_str}</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stats">
+            <div class="item"><span class="k">Engine</span><span class="v">Auto-Match &amp; Grid Fulfillment</span></div>
+            <div class="item"><span class="k">Output</span><span class="v">Excel Export Ready</span></div>
+            <div class="item"><span class="k">Mode</span><span class="v">Real-time Filtering</span></div>
+        </div>
+        <div class="hero-signature">Designed by Neel Limbachiya</div>
     </div>
     """, unsafe_allow_html=True)
 
+    st.markdown('<div class="section-label">📁 Upload Files</div>', unsafe_allow_html=True)
 
-    st.markdown("### 📁 Upload Files")
+    st.markdown("""
+    <div class="info-card">
+        <div class="icon">🗂️</div>
+        <div>
+            <div class="txt-title">Two files required to run a match</div>
+            <div class="txt-sub">Master Refile File defines what's needed per Shape/Size/Color/Clarity — the Pool File is your live inventory to select from.</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    # Upload Master File like Pool File
-    master_file = st.file_uploader(
-        "Upload Master Refile File",
-        type=['xlsx', 'xls'],
-        help="Excel file containing master stone requirement"
-    )
+    upload_col1, upload_col2 = st.columns(2)
 
-    # Upload Pool File
-    pool_file = st.file_uploader(
-        "Upload File For Selections",
-        type=['xlsx', 'xls'],
-        help="Excel file containing available stone inventory"
-    )
+    with upload_col1:
+        master_file = st.file_uploader(
+            "Upload Master Refile File",
+            type=['xlsx', 'xls'],
+            help="Excel file containing master stone requirement"
+        )
+
+    with upload_col2:
+        pool_file = st.file_uploader(
+            "Upload File For Selections",
+            type=['xlsx', 'xls'],
+            help="Excel file containing available stone inventory"
+        )
 
     # Validation
     if master_file is None or pool_file is None:
@@ -471,7 +614,7 @@ def main():
         tab1 = st.tabs(["📊 Stone Selection"])[0]
 
         with tab1:
-        # Show file info
+            st.markdown('<div class="section-label">📦 Overview</div>', unsafe_allow_html=True)
             col1 = st.columns(1)[0]  # Only one column now
             with col1:
                 st.metric("Available Stones", f"{len(pool_df)} stones")
@@ -495,8 +638,7 @@ def main():
 
             # Display results if available
             if 'processed_df' in st.session_state:
-                st.markdown("---")
-                st.header("📊 Results Summary")
+                st.markdown('<div class="section-label">📊 Results Summary</div>', unsafe_allow_html=True)
 
                 # Statistics
                 stats = st.session_state.statistics
@@ -512,7 +654,14 @@ def main():
                     st.metric("Avg Fulfillment", f"{stats['avg_fulfillment']:.1f}%")
 
                 # Results table
-                st.subheader("🔍 Detailed Results")
+                st.markdown('<div class="section-label">🔍 Detailed Results</div>', unsafe_allow_html=True)
+
+                st.markdown("""
+                <div class="legend-row">
+                    <span class="legend-chip sel"><span class="legend-dot"></span>Selection — matched &amp; picked</span>
+                    <span class="legend-chip rej"><span class="legend-dot"></span>Rejection — not selected</span>
+                </div>
+                """, unsafe_allow_html=True)
 
                 df = st.session_state.processed_df.copy()
 
@@ -558,9 +707,9 @@ def main():
                 # Color code the dataframe for better visualization
                 def highlight_remark(val):
                     if val == 'SELECTION':
-                        return 'background-color: #d4edda; color: #155724'
+                        return 'background-color: #e5f5e8; color: #1e7a34; font-weight: 600;'
                     elif val == 'REJECTION':
-                        return 'background-color: #f8d7da; color: #721c24'
+                        return 'background-color: #fbe8e8; color: #b0292f; font-weight: 600;'
                     return ''
 
                 styled_df = filtered_df.style.applymap(highlight_remark, subset=['Remark'])
@@ -574,8 +723,7 @@ def main():
                 st.info(f"Showing {len(filtered_df)} of {len(st.session_state.processed_df)} total stones")
 
                 # Download button
-                st.markdown("---")
-                st.subheader("📥 Export Results")
+                st.markdown('<div class="section-label">📥 Export Results</div>', unsafe_allow_html=True)
 
                 # Create Excel file in memory
                 output_buffer = io.BytesIO()
@@ -596,10 +744,13 @@ def main():
                     data=output_buffer.getvalue(),
                     file_name=filename,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        
                 )
-       
 
+        st.markdown("""
+        <div class="app-footer">
+            LGD Trading LLP <span class="dot">•</span> Internal Stone Selection Tool <span class="dot">•</span> Designed by Neel Limbachiya
+        </div>
+        """, unsafe_allow_html=True)
 
     except Exception as e:
         st.error(f"❌ Error loading files: {str(e)}")
