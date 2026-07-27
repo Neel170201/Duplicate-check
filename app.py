@@ -12,6 +12,16 @@ st.set_page_config(
     layout="wide"
 )
 
+# ------------------------------------------------------------
+# FIX #1: Remove pandas Styler's cell-limit.
+# By default pandas caps styled tables at ~262,144 cells
+# (rows x columns). With ~38,000 rows x 12 columns you cross
+# that limit (~450,000+ cells) and pandas silently stops
+# rendering/styling the rest -> looks like a "limited" table.
+# Bumping this option removes that cap.
+# ------------------------------------------------------------
+pd.set_option("styler.render.max_elements", 5_000_000)
+
 # ============================================================
 #  GLOBAL THEME — Navy & Gold, locked to light mode
 # ============================================================
@@ -382,26 +392,48 @@ def validate_pool_file(df):
     missing_columns = [col for col in required_columns if col not in df.columns]
     return len(missing_columns) == 0, missing_columns
 
+
 def process_stones_selection(master_df, pool_df):
-    """Process stone selection based on the provided algorithm"""
+    """
+    Process stone selection based on the provided algorithm.
 
-    # Create a copy of pool to avoid modifying original
+    OPTIMIZED VERSION — same logic/output as before, but:
+      1. Pre-computes lower/upper-cased match columns ONCE instead of
+         re-running .str.lower()/.str.upper() on every master row.
+      2. Works with raw numpy arrays instead of repeated pandas .loc
+         assignments + .replace('', 0) over the FULL pool on every
+         iteration (that .replace() call over ~38k rows, run once per
+         master row, was the single biggest cost — O(master_rows x pool_rows)
+         of expensive string replace operations).
+      3. Picks the "smallest N eligible sizes" using argsort on just the
+         eligible subset instead of sort_values().head() on a larger slice.
+      4. Vectorizes the 'Group' label instead of a per-row .apply().
+    """
+
     pool = pool_df.copy()
+    n = len(pool)
 
-    # Add empty columns to pool
-    pool['Grid'] = ''
-    pool['Available'] = ''
-    pool['On Memo'] = ''
-    pool['1.5 MONTH SOLD PCS'] = ''
-    pool['Remark'] = ''
+    # ---- Precompute match keys ONCE (vectorized, not per master row) ----
+    pool_shape_lower = pool['Shape'].astype(str).str.lower().to_numpy()
+    pool_color_upper = pool['Color'].astype(str).str.upper().to_numpy()
+    pool_clarity_upper = pool['Clarity'].astype(str).str.upper().to_numpy()
+    pool_size = pd.to_numeric(pool['Size'], errors='coerce').to_numpy()
 
-    # Process each row in master file
-    for idx, row in master_df.iterrows():
-        shape = row['Shape']
+    # ---- Output arrays, initialized once (no repeated full-frame resets) ----
+    from_size_arr = np.full(n, np.nan)
+    to_size_arr = np.full(n, np.nan)
+    grid_arr = np.zeros(n)
+    available_arr = np.zeros(n)
+    memo_arr = np.zeros(n)
+    sold_arr = np.zeros(n)
+    remark_arr = np.full(n, '', dtype=object)
+
+    for _, row in master_df.iterrows():
+        shape = str(row['Shape']).lower()
         from_size = row['From Size']
         to_size = row['To Size']
-        color = row['Color']
-        clarity = row['Clarity']
+        color = str(row['Color']).upper()
+        clarity = str(row['Clarity']).upper()
         required = row['Grid']
         available = row['Available']
         memo = row['On Memo']
@@ -409,60 +441,73 @@ def process_stones_selection(master_df, pool_df):
 
         remaining = required - available
 
-        # Filter matching pool rows (regardless of remaining)
         match_mask = (
-            (pool['Shape'].str.lower() == shape.lower()) &
-            (pool['Size'] >= from_size) &
-            (pool['Size'] <= to_size) &
-            (pool['Color'].str.upper() == color.upper()) &
-            (pool['Clarity'].str.upper() == clarity.upper())
+            (pool_shape_lower == shape) &
+            (pool_size >= from_size) &
+            (pool_size <= to_size) &
+            (pool_color_upper == color) &
+            (pool_clarity_upper == clarity)
         )
 
-        # Set Required and Available for all matching pool rows
-        pool.loc[match_mask, 'From Size'] = from_size
-        pool.loc[match_mask, 'To Size'] = to_size
-        pool.loc[match_mask, 'Grid'] = required
-        pool.loc[match_mask, 'Available'] = available
-        pool.loc[match_mask, 'On Memo'] = memo
-        pool.loc[match_mask, '1.5 MONTH SOLD PCS'] = sold
+        if not match_mask.any():
+            continue
 
-        # Fill 0 in non-matching rows for this iteration only
-        inverse_mask = ~match_mask
-        cols = ['Grid', 'Available', 'On Memo', '1.5 MONTH SOLD PCS']
-        pool.loc[inverse_mask, cols] = pool.loc[inverse_mask, cols].replace('', 0)
+        match_idx = np.where(match_mask)[0]
+
+        # Tag all matching pool rows with this requirement's info
+        from_size_arr[match_idx] = from_size
+        to_size_arr[match_idx] = to_size
+        grid_arr[match_idx] = required
+        available_arr[match_idx] = available
+        memo_arr[match_idx] = memo
+        sold_arr[match_idx] = sold
 
         if remaining <= 0:
-            continue  # nothing to select
+            continue
 
-        # Select unselected eligible rows
-        eligible = pool[match_mask & (pool['Remark'] == '')].copy()
+        # Eligible = matched AND not already picked by an earlier requirement
+        eligible_idx = match_idx[remark_arr[match_idx] == '']
+        if eligible_idx.size == 0:
+            continue
 
-        # Sort by size ascending
-        eligible = eligible.sort_values(by='Size')
+        k = int(remaining)
+        if k >= eligible_idx.size:
+            selected_idx = eligible_idx
+        else:
+            # Only sort within the (small) eligible subset, not the whole pool
+            order = np.argsort(pool_size[eligible_idx], kind='mergesort')[:k]
+            selected_idx = eligible_idx[order]
 
-        # Select top N rows
-        selected_indices = eligible.head(int(remaining)).index
+        remark_arr[selected_idx] = 'SELECTION'
 
-        # Mark as selected
-        pool.loc[selected_indices, 'Remark'] = 'SELECTION'
+    # Anything never matched/selected -> Rejection
+    remark_arr[remark_arr == ''] = 'REJECTION'
 
-    # Mark remaining blanks as Rejection
-    pool.loc[pool['Remark'] == '', 'Remark'] = 'REJECTION'
+    pool['From Size'] = from_size_arr
+    pool['To Size'] = to_size_arr
+    pool['Grid'] = grid_arr
+    pool['Available'] = available_arr
+    pool['On Memo'] = memo_arr
+    pool['1.5 MONTH SOLD PCS'] = sold_arr
+    pool['Remark'] = remark_arr
 
     # Add 'Same' column with count of identical Shape + From Size + To Size + Color + Clarity combinations
     pool['Same'] = pool.groupby(
         ['Shape', 'From Size', 'To Size', 'Color', 'Clarity']
     )['Shape'].transform('count')
 
-    # Add 'Group' column with 'From Size' and 'To Size' in 0.00 format
-    pool['Group'] = pool.apply(
-    lambda row: (
-        f"{row['From Size']:.2f} - {row['To Size']:.2f}"
-        if pd.notna(row['From Size']) and pd.notna(row['To Size'])
-        else "-"
-    ),
-    axis=1
-    )
+    # Add 'Group' column with 'From Size' and 'To Size' in 0.00 format (vectorized, no per-row apply)
+    valid_mask = pool['From Size'].notna() & pool['To Size'].notna()
+    group_col = np.full(n, '-', dtype=object)
+    if valid_mask.any():
+        formatted = (
+            pool.loc[valid_mask, 'From Size'].map('{:.2f}'.format)
+            + ' - '
+            + pool.loc[valid_mask, 'To Size'].map('{:.2f}'.format)
+        )
+        group_col[valid_mask.to_numpy()] = formatted.to_numpy()
+    pool['Group'] = group_col
+
     # Drop 'From Size' and 'To Size' columns
     pool.drop(columns=['From Size', 'To Size'], inplace=True)
 
@@ -625,6 +670,8 @@ def main():
             if st.button("🔄 Process Stone Selection", type="primary"):
                 with st.spinner("Processing stone selection..."):
                     try:
+                        start_time = datetime.now()
+
                         # ✅ Use filtered master file
                         processed_df = process_stones_selection(filtered_master_df, pool_df)
 
@@ -632,7 +679,8 @@ def main():
                         st.session_state.processed_df = processed_df
                         st.session_state.statistics = calculate_statistics(processed_df)
 
-                        st.success("✅ Processing completed!")
+                        elapsed = (datetime.now() - start_time).total_seconds()
+                        st.success(f"✅ Processing completed in {elapsed:.1f} seconds!")
                         st.rerun()
 
                     except Exception as e:
@@ -719,7 +767,7 @@ def main():
                 st.dataframe(
                     styled_df,
                     use_container_width=True,
-                    height=400
+                    height=600
                 )
 
                 st.info(f"Showing {len(filtered_df)} of {len(st.session_state.processed_df)} total stones")
